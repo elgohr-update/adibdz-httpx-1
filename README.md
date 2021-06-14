@@ -1,172 +1,234 @@
-<h1 align="left">
+<h1 align="center">
   <img src="static/httpx-logo.png" alt="httpx" width="200px"></a>
   <br>
 </h1>
 
-[![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
-[![Go Report Card](https://goreportcard.com/badge/github.com/projectdiscovery/httpx)](https://goreportcard.com/report/github.com/projectdiscovery/httpx)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/projectdiscovery/httpx/issues)
-[![GitHub Release](https://img.shields.io/github/release/projectdiscovery/httpx)](https://github.com/projectdiscovery/httpx/releases)
-[![Follow on Twitter](https://img.shields.io/twitter/follow/pdiscoveryio.svg?logo=twitter)](https://twitter.com/pdiscoveryio)
-[![Docker Images](https://img.shields.io/docker/pulls/projectdiscovery/httpx.svg)](https://hub.docker.com/r/projectdiscovery/httpx)
-[![Chat on Discord](https://img.shields.io/discord/695645237418131507.svg?logo=discord)](https://discord.gg/KECAGdH)
+
+
+<p align="center">
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-_red.svg"></a>
+<a href="https://github.com/projectdiscovery/httpx/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"></a>
+<a href="https://goreportcard.com/badge/github.com/projectdiscovery/httpx"><img src="https://goreportcard.com/badge/github.com/projectdiscovery/httpx"></a>
+<a href="https://github.com/projectdiscovery/httpx/releases"><img src="https://img.shields.io/github/release/projectdiscovery/httpx"></a>
+<a href="https://hub.docker.com/r/projectdiscovery/httpx"><img src="https://img.shields.io/docker/pulls/projectdiscovery/httpx.svg"></a>
+<a href="https://twitter.com/pdiscoveryio"><img src="https://img.shields.io/twitter/follow/pdiscoveryio.svg?logo=twitter"></a>
+<a href="https://discord.gg/projectdiscovery"><img src="https://img.shields.io/discord/695645237418131507.svg?logo=discord"></a>
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#installation-instructions">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#running-httpx">Running httpx</a> •
+  <a href="#-notes">Notes</a> •
+  <a href="https://discord.gg/projectdiscovery">Join Discord</a>
+</p>
+
 
 httpx is a fast and multi-purpose HTTP toolkit allow to run multiple probers using [retryablehttp](https://github.com/projectdiscovery/retryablehttp-go) library, it is designed to maintain the result reliability with increased threads.
 
-# Resources
-- [Resources](#resources)
-- [Features](#features)
-- [Usage](#usage)
-- [Installation Instructions](#installation-instructions)
-    - [From Binary](#from-binary)
-    - [From Source](#from-source)
-    - [From Github](#from-github)
-- [Running httpX to probe `7614` hosts](#running-httpx-to-probe-7614-hosts)
-    - [Running httpx with stdin](#running-httpx-with-stdin)
-    - [Running httpx with file input](#running-httpx-with-file-input)
-    - [Running httpx with CIDR input](#running-httpx-with-cidr-input)
-    - [Using httpX with subfinder/chaos and any other similar tool.](#using-httpx-with-subfinderchaos-and-any-other-similar-tool)
-    - [Running httpX with json output](#running-httpx-with-json-output)
-  - [Todo](#todo)
-- [Thanks](#thanks)
-
- # Features
+# Features
 
 <h1 align="left">
-  <img src="static/httpx-run.png" alt="httpx" width="700px"></a>
+  <img src="https://user-images.githubusercontent.com/8293321/117307789-8129d400-ae9e-11eb-8bb8-57fc7410b9ef.png" alt="httpx" width="700px"></a>
   <br>
 </h1>
 
  - Simple and modular code base making it easy to contribute.
  - Fast And fully configurable flags to probe mutiple elements.
- - Supports vhost, urls, ports, title, content-length, status-code, response-body probbing.
+ - Supports multiple HTTP based probings.
  - Smart auto fallback from https to http as default. 
  - Supports hosts, URLs and CIDR as input.
  - Handles edge cases doing retries, backoffs etc for handling WAFs.
 
+### Supported probes:-
+
+| Probes             | Default check   | Probes             | Default check   |
+|--------------------|-----------------|--------------------|-----------------|
+| URL                | true            | IP                 | true            |
+| Title              | true            | CNAME              | true            |
+| Status Code        | true            | Raw HTTP           | false           |
+| Content Length     | true            | HTTP2              | false           |
+| TLS Certificate    | true            | HTTP 1.1 Pipeline  | false           |
+| CSP Header         | true            | Virtual host       | false           |
+| Location Header    | true            | CDN                | false           |
+| Web Server         | true            | Path               | false           |
+| Web Socket         | true            | Ports              | false           |
+| Response Time      | true            | Request method     | false           |
+
+
+# Installation Instructions
+
+httpx requires **go1.14+** to install successfully. Run the following command to get the repo - 
+
+```sh
+GO111MODULE=on go get -v github.com/projectdiscovery/httpx/cmd/httpx
+```
+
 # Usage
 
-```bash
+```sh
 httpx -h
 ```
 
 This will display help for the tool. Here are all the switches it supports.
 
-| Flag                    | Description                                             | Example                                            |
-|-------------------------|---------------------------------------------------------|----------------------------------------------------|
-| -H                      | Custom Header input                                     | httpx -H 'x-bug-bounty: hacker'                    |
-| -follow-redirects       | Follow URL redirects (default false)                    | httpx -follow-redirects                            |
-| -follow-host-redirects  | Follow URL redirects only on same host(default false)   | httpx -follow-host-redirects                       |
-| -http-proxy             | URL of the proxy server                                 | httpx -http-proxy hxxp://proxy-host:80             |
-| -l                      | File containing HOST/URLs/CIDR to process               | httpx -l hosts.txt                                 |
-| -no-color               | Disable colors in the output.                           | httpx -no-color                                    |
-| -o                      | File to save output result (optional)                   | httpx -o output.txt                                |
-| -json                   | Prints all the probes in JSON format (default false)    | httpx -json                                        |
-| -vhost                  | Probes to detect vhost from list of subdomains          | httpx -vhost                                       |
-| -threads                | Number of threads (default 50)                          | httpx -threads 100                                 |
-| -ports                  | Ports ranges to probe (nmap syntax: eg 1,2-10,11)       | httpx -ports 80,443,100-200                        |
-| -title                  | Prints title of page if available                       | httpx -title                                       |
-| -path                   | Request path/file                                       | httpx -path /api                                   |
-| -content-length         | Prints content length in the output                     | httpx -content-length                              |
-| -ml                     | Match content length in the output                      | httpx -content-length -ml 125                      |
-| -fl                     | Filter content length in the output                     | httpx -content-length -fl 0,43                     |
-| -status-code            | Prints status code in the output                        | httpx -status-code                                 |
-| -mc                     | Match status code in the output                         | httpx -status-code -mc 200,302                     |
-| -fc                     | Filter status code in the output                        | httpx -status-code -fc 404,500                     |
-| -tls-probe              | Send HTTP probes on the extracted TLS domains           | httpx -tls-probe                                   |
-| -content-type           | Prints content-type                                     | httpx -content-type                                |
-| -web-server             | Prints running web sever if available                   | httpx -web-server                                  |
-| -sr                     | Store responses to file (default false)                 | httpx -store-response                              |
-| -srd                    | Directory to store response (default output)            | httpx -store-response-dir output                   | 
-| -retries                | Number of retries                                       | httpx -retries                                     |
-| -silent                 | Prints only results in the output                       | httpx -silent                                      |
-| -timeout                | Timeout in seconds (default 5)                          | httpx -timeout 10                                  |
-| -verbose                | Verbose Mode                                            | httpx -verbose                                     |
-| -version                | Prints current version of the httpx                     | httpx -version                                     |
-| -x                      | Request Method (default 'GET')                          | httpx -x HEAD                                      |
-| -response-in-json       | Include response in stdout (only works with -json)      | httpx -response-in-json                            |
-| -websocket              | Prints if a websocket is exposed                        | httpx -websocket                                   |
+<details>
+<summary> 👉 httpx help menu 👈</summary>
 
-
-# Installation Instructions
-
-
-### From Binary
-
-The installation is easy. You can download the pre-built binaries for your platform from the [Releases](https://github.com/projectdiscovery/httpx/releases/) page. Extract them using tar, move it to your `$PATH`and you're ready to go.
-
-```bash
-> tar -xvf httpx-linux-amd64.tar
-> mv httpx-linux-amd64 /usr/local/bin/httpx
-> httpx -h
 ```
+Usage of ./httpx:
 
-### From Source
-
-httpx requires go1.13+ to install successfully. Run the following command to get the repo - 
-
-```bash
-> GO111MODULE=auto go get -u -v github.com/projectdiscovery/httpx/cmd/httpx
+  -H value
+      Custom Header
+  -allow value
+      Allowlist ip/cidr
+  -body string
+      Request Body
+  -cdn
+      Check if domain's ip belongs to known CDN (akamai, cloudflare, ..)
+  -cname
+      Output first cname
+  -content-length
+      Extracts content length
+  -content-type
+      Extracts content-type
+  -csp-probe
+      Send HTTP probes on the extracted CSP domains
+  -debug
+      Debug mode
+  -deny value
+      Denylist ip/cidr
+  -extract-regex string
+      Extract Regex
+  -fc string
+      Filter status code
+  -filter-regex string
+      Filter Regex
+  -filter-string string
+      Filter String
+  -fl string
+      Filter content length
+  -follow-host-redirects
+      Only follow redirects on the same host
+  -follow-redirects
+      Follow Redirects
+  -http-proxy string
+      HTTP Proxy, eg http://127.0.0.1:8080
+  -http2
+      HTTP2 probe
+  -include-chain
+      Show Raw HTTP Chain In Output (-json only)
+  -include-response
+      Show Raw HTTP Response In Output (-json only)
+  -ip
+      Output target ip
+  -json
+      JSON Output
+  -l string
+      File containing domains
+  -location
+      Extracts location header
+  -match-regex string
+      Match Regex
+  -match-string string
+      Match string
+  -max-response-body-size int
+      Maximum response body size (default 2147483647)
+  -mc string
+      Match status code
+  -method
+      Output method
+  -ml string
+      Match content length
+  -no-color
+      No Color
+  -no-fallback
+      If HTTPS on port 443 is successful on default configuration, probes also port 80 for HTTP
+  -o string
+      File to write output to (optional)
+  -path string
+      Request path/file (example '/api')
+  -paths string
+      Command separated paths or file containing one path per line (example '/api/v1,/apiv2')
+  -pipeline
+      HTTP1.1 Pipeline
+  -ports value
+      ports range (nmap syntax: eg 1,2-10,11)
+  -random-agent
+      Use randomly selected HTTP User-Agent header value
+  -request string
+      File containing raw request
+  -response-in-json
+      Show Raw HTTP Response In Output (-json only) (deprecated)
+  -response-time
+      Output the response time
+  -retries int
+      Number of retries
+  -silent
+      Silent mode
+  -sr
+      Save response to file (default 'output')
+  -srd string
+      Save response directory (default "output")
+  -stats
+      Enable statistic on keypress (terminal may become unresponsive till the end)
+  -status-code
+      Extracts status code
+  -store-chain
+      Save chain to file (default 'output')
+  -tech-detect
+      Perform wappalyzer based technology detection
+  -threads int
+      Number of threads (default 50)
+  -timeout int
+      Timeout in seconds (default 5)
+  -title
+      Extracts title
+  -tls-grab
+      Perform TLS data grabbing
+  -tls-probe
+      Send HTTP probes on the extracted TLS domains
+  -unsafe
+      Send raw requests skipping golang normalization
+  -verbose
+      Verbose Mode
+  -version
+      Show version of httpx
+  -vhost
+      Check for VHOSTs
+  -vhost-input
+      Get a list of vhosts as input
+  -web-server
+      Extracts server header
+  -websocket
+      Prints out if the server exposes a websocket
+  -x string
+      Request Methods, use ALL to check all verbs ()
 ```
+</details>
 
-### From Github
-
-```bash
-git clone https://github.com/projectdiscovery/httpx.git
-cd httpx/cmd/httpx
-go build .
-mv httpx /usr/local/bin/
-httpx -h
-```
-
-In order to update the tool, you can use -u flag with `go get` command.
-
-# Running httpX to probe `7614` hosts
-
-```bash 
-> chaos -d uber.com -count -silent 
-
-7614
-
-> time chaos -d uber.com -silent | httpx -status-code -content-length -title -store-response -threads 100 -json | wc 
-
-    __    __  __       _  __
-   / /_  / /_/ /_____ | |/ /
-  / __ \/ __/ __/ __ \|   / 
- / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
-             /_/            
-
-		projectdiscovery.io
-
-[WRN] Use with caution. You are responsible for your actions
-[WRN] Developers assume no liability and are not responsible for any misuse or damage.
-
-210
-
-real	0m36.952s
-user	0m7.976s
-sys	0m7.884s
-```
+# Running httpX
 
 ### Running httpx with stdin  
 
-This will run the tool against all the hosts in `hosts.txt` and returns the matched results. 
+This will run the tool against all the hosts and subdomains in `hosts.txt` and returns URLs running HTTP webserver. 
 
-```bash
-> cat hosts.txt | httpx 
+```sh
+▶ cat hosts.txt | httpx 
 
     __    __  __       _  __
    / /_  / /_/ /_____ | |/ /
   / __ \/ __/ __/ __ \|   / 
  / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
+/_/ /_/\__/\__/ .___/_/|_|   v1.0  
              /_/            
 
-		projectdiscovery.io
+    projectdiscovery.io
 
 [WRN] Use with caution. You are responsible for your actions
 [WRN] Developers assume no liability and are not responsible for any misuse or damage.
+
 https://mta-sts.managed.hackerone.com
 https://mta-sts.hackerone.com
 https://mta-sts.forwarding.hackerone.com
@@ -179,22 +241,11 @@ https://support.hackerone.com
 
 ### Running httpx with file input  
 
-This will run the tool against all the hosts in `hosts.txt` and returns the matched results. 
+This will run the tool against all the hosts and subdomains in `hosts.txt` and returns URLs running HTTP webserver.
 
-```bash
-> httpx -l hosts.txt
+```sh
+▶ httpx -l hosts.txt -silent
 
-    __    __  __       _  __
-   / /_  / /_/ /_____ | |/ /
-  / __ \/ __/ __/ __ \|   / 
- / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
-             /_/            
-
-		projectdiscovery.io
-
-[WRN] Use with caution. You are responsible for your actions
-[WRN] Developers assume no liability and are not responsible for any misuse or damage.
 https://docs.hackerone.com
 https://mta-sts.hackerone.com
 https://mta-sts.managed.hackerone.com
@@ -207,20 +258,9 @@ https://support.hackerone.com
 
 ### Running httpx with CIDR input   
 
-```bash
-> echo 173.0.84.0/24 | httpx 
+```sh
+▶ echo 173.0.84.0/24 | httpx -silent
 
-    __    __  __       _  __
-   / /_  / /_/ /_____ | |/ /
-  / __ \/ __/ __/ __ \|   / 
- / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
-             /_/            
-
-		projectdiscovery.io
-
-[WRN] Use with caution. You are responsible for your actions
-[WRN] Developers assume no liability and are not responsible for any misuse or damage.
 https://173.0.84.29
 https://173.0.84.43
 https://173.0.84.31
@@ -242,72 +282,43 @@ https://173.0.84.34
 ```
 
 
-### Using httpX with subfinder/chaos and any other similar tool.
+### Running httpx with subfinder
 
 
-```bash
-> subfinder -d hackerone.com -silent | httpx -title -content-length -status-code
-
-
-    __    __  __       _  __
-   / /_  / /_/ /_____ | |/ /
-  / __ \/ __/ __/ __ \|   / 
- / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
-             /_/            
-
-		projectdiscovery.io
-
-[WRN] Use with caution. You are responsible for your actions
-[WRN] Developers assume no liability and are not responsible for any misuse or damage.
-https://mta-sts.forwarding.hackerone.com [404] [9339] [Page not found · GitHub Pages]
-https://mta-sts.hackerone.com [404] [9339] [Page not found · GitHub Pages]
-https://mta-sts.managed.hackerone.com [404] [9339] [Page not found · GitHub Pages]
-https://docs.hackerone.com [200] [65444] [HackerOne Platform Documentation]
-https://www.hackerone.com [200] [54166] [Bug Bounty - Hacker Powered Security Testing | HackerOne]
-https://support.hackerone.com [301] [489] []
-https://api.hackerone.com [200] [7791] [HackerOne API]
-https://hackerone.com [301] [92] []
-https://resources.hackerone.com [301] [0] []
-```
-
-### Running httpX with json output
-
-```bash
-> chaos -d hackerone.com -silent | httpx -json
+```sh
+▶ subfinder -d hackerone.com | httpx -title -tech-detect -status-code -title -follow-redirects
 
     __    __  __       _  __
    / /_  / /_/ /_____ | |/ /
-  / __ \/ __/ __/ __ \|   / 
- / / / / /_/ /_/ /_/ /   |  
-/_/ /_/\__/\__/ .___/_/|_|  
-             /_/            
+  / __ \/ __/ __/ __ \|   /
+ / / / / /_/ /_/ /_/ /   |
+/_/ /_/\__/\__/ .___/_/|_|
+             /_/              v1.0.6
 
-		projectdiscovery.io
+    projectdiscovery.io
 
-[WRN] Use with caution. You are responsible for your actions
-[WRN] Developers assume no liability and are not responsible for any misuse or damage.
-
-{"url":"https://mta-sts.managed.hackerone.com","content-length":9339,"status-code":404,"title":"Page not found · GitHub Pages","vhost":false,"webserver":"GitHub.com"}
-{"url":"https://mta-sts.forwarding.hackerone.com","content-length":9339,"status-code":404,"title":"Page not found · GitHub Pages","vhost":false,"webserver":"GitHub.com"}
-{"url":"https://mta-sts.hackerone.com","content-length":9339,"status-code":404,"title":"Page not found · GitHub Pages","vhost":false,"webserver":"GitHub.com"}
-{"url":"https://docs.hackerone.com","content-length":65781,"status-code":200,"title":"HackerOne Platform Documentation","vhost":false,"webserver":"GitHub.com"}
-{"url":"https://api.hackerone.com","content-length":7791,"status-code":200,"title":"HackerOne API","vhost":false,"webserver":"cloudflare"}
-{"url":"https://support.hackerone.com","content-length":98,"status-code":301,"title":"","vhost":false,"webserver":"cloudflare"}
-{"url":"https://resources.hackerone.com","content-length":0,"status-code":301,"title":"","vhost":false,"webserver":""}
-{"url":"https://www.hackerone.com","content-length":54136,"status-code":200,"title":"Bug Bounty - Hacker Powered Security Testing | HackerOne","vhost":false,"webserver":"cloudflare"}
-
+Use with caution. You are responsible for your actions
+Developers assume no liability and are not responsible for any misuse or damage.
+https://mta-sts.managed.hackerone.com [404] [Page not found · GitHub Pages] [Varnish,GitHub Pages,Ruby on Rails]
+https://mta-sts.hackerone.com [404] [Page not found · GitHub Pages] [Varnish,GitHub Pages,Ruby on Rails]
+https://mta-sts.forwarding.hackerone.com [404] [Page not found · GitHub Pages] [GitHub Pages,Ruby on Rails,Varnish]
+https://docs.hackerone.com [200] [HackerOne Platform Documentation] [Ruby on Rails,jsDelivr,Gatsby,React,webpack,Varnish,GitHub Pages]
+https://support.hackerone.com [301,302,301,200] [HackerOne] [Cloudflare,Ruby on Rails,Ruby]
+https://resources.hackerone.com [301,301,404] [Sorry, no Folders found.]
 ```
 
-You can simply use `jq` to filter out the json results as per your interest. 
+# 📋 Notes
 
-## Todo
-
-- [ ] Adding support to probe [http smuggling](https://portswigger.net/web-security/request-smuggling)
+- As default, **httpx** checks for `HTTPS` probe and fall-back to `HTTP` only if `HTTPS` is not reachable.
+- For printing both HTTP/HTTPS results, `no-fallback` flag can be used.
+- Custom scheme for ports can be defined, for example `-ports http:443,http:80,https:8443`
+- `vhost`, `http2`, `pipeline`, `ports`, `csp-probe`, `tls-probe` and `path` are unique flag with different probes.
+- Unique flags should be used for specific use cases instead of running them as default with other flags.
+- When using `json` flag, all the information (default probes) included in the JSON output.
 
 
 # Thanks
 
-httpX is made with 🖤 by the [projectdiscovery](https://projectdiscovery.io) team. Community contributions have made the project what it is. See the **[Thanks.md](https://github.com/projectdiscovery/httpx/blob/master/THANKS.md)** file for more details. Do also check out these similar awesome projects that may fit in your workflow:
+httpx is made with 🖤 by the [projectdiscovery](https://projectdiscovery.io) team. Community contributions have made the project what it is. See the **[Thanks.md](https://github.com/projectdiscovery/httpx/blob/master/THANKS.md)** file for more details. Do also check out these similar awesome projects that may fit in your workflow:
 
 Probing feature is inspired by [@tomnomnom/httprobe](https://github.com/tomnomnom/httprobe) work :heart:

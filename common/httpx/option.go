@@ -6,36 +6,42 @@ import (
 
 // Options contains configuration options for the client
 type Options struct {
-	Threads int
+	RandomAgent      bool
+	DefaultUserAgent string
+	RequestOverride  RequestOverride
+	HTTPProxy        string
+	SocksProxy       string
+	Threads          int
+	CdnCheck         bool
 	// Timeout is the maximum time to wait for the request
 	Timeout time.Duration
 	// RetryMax is the maximum number of retries
-	RetryMax int
-
-	CustomHeaders    map[string]string
-	FollowRedirects  bool
-	FollowHostRedirects bool
-	DefaultUserAgent string
-
-	HttpProxy  string
-	SocksProxy string
-
+	RetryMax      int
+	CustomHeaders map[string]string
+	// VHostSimilarityRatio 1 - 100
+	VHostSimilarityRatio int
+	FollowRedirects      bool
+	FollowHostRedirects  bool
+	Unsafe               bool
+	TLSGrab              bool
 	// VHOSTs options
 	VHostIgnoreStatusCode    bool
 	VHostIgnoreContentLength bool
 	VHostIgnoreNumberOfWords bool
 	VHostIgnoreNumberOfLines bool
 	VHostStripHTML           bool
-
-	// VHostimilarityRatio 1 - 100
-	VHostSimilarityRatio int
+	Allow                    []string
+	Deny                     []string
 }
 
 // DefaultOptions contains the default options
 var DefaultOptions = Options{
-	Threads:  25,
-	Timeout:  30 * time.Second,
-	RetryMax: 5,
+	RandomAgent: true,
+	Threads:     25,
+	Timeout:     30 * time.Second,
+	RetryMax:    5,
+	Unsafe:      false,
+	CdnCheck:    true,
 	// VHOSTs options
 	VHostIgnoreStatusCode:    false,
 	VHostIgnoreContentLength: true,
@@ -44,5 +50,4 @@ var DefaultOptions = Options{
 	VHostStripHTML:           false,
 	VHostSimilarityRatio:     85,
 	DefaultUserAgent:         "httpx - Open-source project (github.com/projectdiscovery/httpx)",
-	// Smuggling Options
 }
